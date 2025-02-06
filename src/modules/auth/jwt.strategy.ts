@@ -22,14 +22,14 @@ export class JwtStrategy extends PassportStrategy(Strategy, `protect`) {
     // console.log(`validate`);
     // console.log({ payload });
     const user: TUser = await this.prisma.users.findUnique({
-      where: { account_id: Number(payload.account_id) },
+      where: { id: Number(payload.id) },
       select: {
         account: true,
-        account_id: true,
-        full_name: true,
+        id: true,
+        first_name: true,
+        last_name: true,
         email: true,
         phone_number: true,
-        user_type_id: true,
       },
     });
 
