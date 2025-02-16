@@ -17,24 +17,29 @@ model banners {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model branches {
-  id           Int      @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   address      String
-  open_time    DateTime @db.Time(6)
-  close_time   DateTime @db.Time(6)
-  is_open      Boolean? @default(true)
-  service_fee  Decimal? @default(0.00) @db.Decimal(10, 2)
-  rating       Decimal? @db.Decimal(3, 2)
-  rating_count Int?     @default(0)
-  min_price    Decimal? @db.Decimal(10, 2)
-  max_price    Decimal? @db.Decimal(10, 2)
+  open_time    DateTime       @db.Time(6)
+  close_time   DateTime       @db.Time(6)
+  is_open      Boolean?       @default(true)
+  service_fee  Decimal?       @default(0.00) @db.Decimal(10, 2)
+  rating       Decimal?       @db.Decimal(3, 2)
+  rating_count Int?           @default(0)
+  min_price    Decimal?       @db.Decimal(10, 2)
+  max_price    Decimal?       @db.Decimal(10, 2)
   brand_id     Int
-  brands       brands   @relation(fields: [brand_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  created_at   DateTime?      @default(now()) @db.Timestamp(6)
+  updated_at   DateTime?      @default(now()) @db.Timestamp(6)
+  branch_foods branch_foods[]
+  brands       brands         @relation(fields: [brand_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model brands {
-  id       Int        @id @default(autoincrement())
-  name     String     @db.VarChar(255)
-  branches branches[]
+  id         Int        @id @default(autoincrement())
+  name       String     @db.VarChar(255)
+  created_at DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at DateTime?  @default(now()) @db.Timestamp(6)
+  branches   branches[]
 }
 
 model food_types {
@@ -48,24 +53,88 @@ model food_types {
 }
 
 model foods {
-  id          Int        @id @default(autoincrement())
-  name        String     @db.VarChar(255)
-  description String?
-  image       String?
-  kind        Int
-  created_at  DateTime?  @default(now()) @db.Timestamp(6)
-  updated_at  DateTime?  @default(now()) @db.Timestamp(6)
-  food_types  food_types @relation(fields: [kind], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id           Int            @id @default(autoincrement())
+  name         String         @db.VarChar(255)
+  description  String?
+  image        String?
+  type_id      Int
+  created_at   DateTime?      @default(now()) @db.Timestamp(6)
+  updated_at   DateTime?      @default(now()) @db.Timestamp(6)
+  branch_foods branch_foods[]
+  food_types   food_types     @relation(fields: [type_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  order_items  order_items[]
 }
 
 model users {
-  id           Int       @id @default(autoincrement())
-  email        String    @unique @db.VarChar(255)
-  phone_number String?   @unique @db.VarChar(15)
-  account      String    @unique @db.VarChar(255)
-  password     String    @db.VarChar(255)
-  first_name   String?   @db.VarChar(100)
-  last_name    String?   @db.VarChar(100)
-  created_at   DateTime? @default(now()) @db.Timestamp(6)
-  updated_at   DateTime? @default(now()) @db.Timestamp(6)
+  id           Int          @id @default(autoincrement())
+  email        String       @unique @db.VarChar(255)
+  phone_number String?      @unique @db.VarChar(15)
+  account      String       @unique @db.VarChar(255)
+  password     String       @db.VarChar(255)
+  first_name   String?      @db.VarChar(100)
+  last_name    String?      @db.VarChar(100)
+  created_at   DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at   DateTime?    @default(now()) @db.Timestamp(6)
+  cart_items   cart_items[]
+  orders       orders[]
+  payments     payments[]
+}
+
+model branch_foods {
+  id         Int          @id @default(autoincrement())
+  branch_id  Int
+  food_id    Int
+  price      Decimal      @db.Decimal(10, 2)
+  created_at DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at DateTime?    @default(now()) @db.Timestamp(6)
+  branches   branches     @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  foods      foods        @relation(fields: [food_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  cart_items cart_items[]
+}
+
+model cart_items {
+  id             Int          @id @default(autoincrement())
+  user_id        Int
+  branch_food_id Int
+  quantity       Int          @default(1)
+  created_at     DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?    @default(now()) @db.Timestamp(6)
+  branch_foods   branch_foods @relation(fields: [branch_food_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users          users        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model order_items {
+  id         Int       @id @default(autoincrement())
+  order_id   Int
+  food_id    Int
+  quantity   Int       @default(1)
+  price      Decimal   @db.Decimal(10, 2)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  foods      foods     @relation(fields: [food_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  orders     orders    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model orders {
+  id          Int           @id @default(autoincrement())
+  user_id     Int
+  status      String?       @default("Pending") @db.VarChar(50)
+  total_price Decimal       @default(0.00) @db.Decimal(10, 2)
+  created_at  DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at  DateTime?     @default(now()) @db.Timestamp(6)
+  order_items order_items[]
+  users       users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  payments    payments[]
+}
+
+model payments {
+  id         Int       @id @default(autoincrement())
+  order_id   Int
+  user_id    Int
+  amount     Decimal   @db.Decimal(10, 2)
+  status     String?   @default("Pending") @db.VarChar(50)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  orders     orders    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
