@@ -63,4 +63,9 @@ export class FoodController {
   ) {
     return this.foodService.searchFood(+page, +pageSize, keyword);
   }
+
+  @Get(`get-food-detail:id`)
+  getFoodDetail(@Param(`id`) id: string) {
+    return this.foodService.getFoodDetail(+id);
+  }
 }

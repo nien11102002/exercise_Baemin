@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateFoodDto } from './dto/create-food.dto';
 import { UpdateFoodDto } from './dto/update-food.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -20,6 +20,21 @@ export class FoodService {
       take: _pageSize,
       orderBy: {
         id: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        food_types: true,
+        image: true,
+        type_id: true,
+        branch_foods: {
+          select: {
+            branches: {
+              select: { address: true, brands: { select: { name: true } } },
+            },
+          },
+        },
       },
     });
 
@@ -61,6 +76,21 @@ export class FoodService {
           contains: keyword,
         },
       },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        food_types: true,
+        image: true,
+        type_id: true,
+        branch_foods: {
+          select: {
+            branches: {
+              select: { address: true, brands: { select: { name: true } } },
+            },
+          },
+        },
+      },
     });
 
     return {
@@ -70,5 +100,28 @@ export class FoodService {
       totalPage: totalPage,
       items: result || [],
     };
+  }
+
+  async getFoodDetail(id: number) {
+    if (id === 0 || !id) throw new BadRequestException('Wrong id!!!');
+    const food_types = await this.prisma.foods.findFirst({
+      where: { id: id },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        image: true,
+        type_id: true,
+        food_types: { select: { name: true } },
+        branch_foods: {
+          select: {
+            branches: {
+              select: { address: true, brands: { select: { name: true } } },
+            },
+          },
+        },
+      },
+    });
+    return food_types;
   }
 }
