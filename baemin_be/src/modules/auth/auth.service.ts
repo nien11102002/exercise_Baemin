@@ -69,15 +69,29 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const { email, password, first_name, last_name, account, phone_number } =
-      registerDto;
+    const {
+      email,
+      password,
+      first_name,
+      last_name,
+      account,
+      phone_number,
+      repassword,
+    } = registerDto;
 
-    const userExists = await this.prisma.users.findFirst({
+    var userExists = await this.prisma.users.findFirst({
       where: {
-        email: email,
+        OR: [
+          { email: email },
+          { phone_number: phone_number },
+          { account: account },
+        ],
       },
     });
-    if (userExists) throw new BadGatewayException(`Email existed!`);
+    if (userExists) throw new BadGatewayException(`Account existed!`);
+
+    if (password !== repassword)
+      throw new BadGatewayException('Not similar password');
 
     const hashPassword = bcrypt.hashSync(password, 10);
 
@@ -102,6 +116,8 @@ export class AuthService {
 
     //await mailSender(email);
 
-    return userNew;
+    const tokens = this.createTokens(userNew);
+
+    return { tokens, userNew };
   }
 }

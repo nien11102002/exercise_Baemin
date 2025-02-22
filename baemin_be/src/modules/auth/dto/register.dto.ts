@@ -9,10 +9,6 @@ export class RegisterDto {
 
   @ApiProperty()
   @IsString()
-  password: string;
-
-  @ApiProperty()
-  @IsString()
   first_name: string;
 
   @ApiProperty()
@@ -26,4 +22,12 @@ export class RegisterDto {
   @ApiProperty()
   @IsString()
   account: string;
+
+  @ApiProperty()
+  @IsString()
+  password: string;
+
+  @ApiProperty()
+  @IsString()
+  repassword: string;
 }
