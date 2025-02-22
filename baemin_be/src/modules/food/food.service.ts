@@ -7,6 +7,11 @@ import { PrismaService } from '../prisma/prisma.service';
 export class FoodService {
   constructor(private prisma: PrismaService) {}
 
+  async getBanners() {
+    const banners = await this.prisma.banners.findMany({});
+    return banners;
+  }
+
   async getFoodsPagination(page: number, pageSize: number) {
     const _page = page > 0 ? page : 1;
     const _pageSize = pageSize > 0 ? pageSize : 10;
@@ -24,15 +29,11 @@ export class FoodService {
       select: {
         id: true,
         name: true,
-        description: true,
         food_types: true,
         image: true,
-        type_id: true,
         branch_foods: {
-          select: {
-            branches: {
-              select: { address: true, brands: { select: { name: true } } },
-            },
+          include: {
+            branches: true,
           },
         },
       },

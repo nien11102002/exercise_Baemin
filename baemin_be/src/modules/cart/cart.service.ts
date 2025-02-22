@@ -24,7 +24,7 @@ export class CartService {
   async getCartItems(user: TUser) {
     const items = await this.prisma.cart_items.findMany({
       where: {
-        user_id: 1,
+        user_id: user.id,
       },
       include: {
         branch_foods: {

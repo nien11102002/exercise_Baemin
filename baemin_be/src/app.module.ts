@@ -6,9 +6,21 @@ import { FoodModule } from './modules/food/food.module';
 import { ConfigModule } from '@nestjs/config';
 import { OrderModule } from './modules/order/order.module';
 import { CartModule } from './modules/cart/cart.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
-  imports: [AuthModule, FoodModule, ConfigModule.forRoot({ isGlobal: true }), OrderModule, CartModule],
+  imports: [
+    AuthModule,
+    FoodModule,
+    ConfigModule.forRoot({ isGlobal: true }),
+    OrderModule,
+    CartModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/images',
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
