@@ -57,42 +57,27 @@ export class FoodService {
     page = page > 0 ? page : 1;
     pageSize = pageSize > 0 ? pageSize : 10;
 
+    console.log({ keyword });
+
     const skip = (page - 1) * pageSize;
-    const totalItem = await this.prisma.foods.count({
-      where: {
-        name: {
-          contains: keyword,
-        },
-      },
-    });
+    const totalItemResult = await this.prisma.$queryRaw`
+    SELECT COUNT(*) 
+    FROM foods 
+    WHERE unaccent(name) ILIKE unaccent(${`%${keyword}%`});
+  `;
+
+    const totalItem = Number(totalItemResult[0]?.count || 0);
     const totalPage = Math.ceil(totalItem / pageSize);
-    const result = await this.prisma.foods.findMany({
-      skip: skip,
-      take: pageSize,
-      orderBy: {
-        created_at: 'asc',
-      },
-      where: {
-        name: {
-          contains: keyword,
-        },
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        food_types: true,
-        image: true,
-        type_id: true,
-        branch_foods: {
-          select: {
-            branches: {
-              select: { address: true, brands: { select: { name: true } } },
-            },
-          },
-        },
-      },
-    });
+
+    const result = await this.prisma.$queryRaw`
+    SELECT * 
+    FROM foods 
+    WHERE unaccent(name) ILIKE unaccent(${`%${keyword}%`}) 
+    ORDER BY id ASC 
+    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize};
+  `;
+
+    console.log({ result });
 
     return {
       page: page,

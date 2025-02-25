@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { AntdRegistry } from "@ant-design/nextjs-registry";
 import HeaderNav from "@/components/headerNav";
 import FooterNav from "@/components/footerNav";
+import { Provider } from "react-redux";
+import { store } from "@/common/redux/store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,16 +21,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      
       <body className="w-full h-fit">
-      <HeaderNav/>
-      <AntdRegistry>{children}
-
-
-      </AntdRegistry>
-       
+        {/* <Provider store={store}> */}
+        <HeaderNav />
+        <AntdRegistry>{children}</AntdRegistry>
+        {/* </Provider> */}
       </body>
-      
     </html>
   );
 }
