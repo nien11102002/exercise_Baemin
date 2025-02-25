@@ -1,6 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateFoodDto } from './dto/create-food.dto';
-import { UpdateFoodDto } from './dto/update-food.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -8,32 +6,35 @@ export class FoodService {
   constructor(private prisma: PrismaService) {}
 
   async getBanners() {
-    const banners = await this.prisma.banners.findMany({});
-    return banners;
+    return this.prisma.banners.findMany();
   }
 
   async getFoodsPagination(page: number, pageSize: number) {
-    const _page = page > 0 ? page : 1;
-    const _pageSize = pageSize > 0 ? pageSize : 10;
-
+    const _page = Math.max(page, 1);
+    const _pageSize = Math.max(pageSize, 10);
     const skip = (_page - 1) * _pageSize;
-    const totalItem = await this.prisma.foods.count();
+
+    const totalItem = await this.prisma.branch_foods.count();
     const totalPage = Math.ceil(totalItem / _pageSize);
 
-    const foods = await this.prisma.foods.findMany({
-      skip: skip,
+    const foods = await this.prisma.branch_foods.findMany({
+      skip,
       take: _pageSize,
-      orderBy: {
-        id: 'asc',
-      },
-      select: {
-        id: true,
-        name: true,
-        food_types: true,
-        image: true,
-        branch_foods: {
-          include: {
-            branches: true,
+      orderBy: { id: 'asc' },
+      include: {
+        foods: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            food_types: { select: { name: true } },
+          },
+        },
+        branches: {
+          select: {
+            id: true,
+            address: true,
+            brands: { select: { name: true } },
           },
         },
       },
@@ -42,72 +43,82 @@ export class FoodService {
     return {
       page: _page,
       pageSize: _pageSize,
-      totalItem: totalItem,
-      totalPage: totalPage,
+      totalItem,
+      totalPage,
       items: foods || [],
     };
   }
 
   async getFoodTypes() {
-    const food_types = await this.prisma.food_types.findMany({});
-    return food_types;
+    return this.prisma.food_types.findMany();
   }
 
   async searchFood(page: number, pageSize: number, keyword: string) {
-    page = page > 0 ? page : 1;
-    pageSize = pageSize > 0 ? pageSize : 10;
+    const _page = Math.max(page, 1);
+    const _pageSize = Math.max(pageSize, 10);
+    const skip = (_page - 1) * _pageSize;
 
-    console.log({ keyword });
-
-    const skip = (page - 1) * pageSize;
     const totalItemResult = await this.prisma.$queryRaw`
-    SELECT COUNT(*) 
-    FROM foods 
-    WHERE unaccent(name) ILIKE unaccent(${`%${keyword}%`});
-  `;
-
+      SELECT COUNT(*) AS count
+      FROM branch_foods bf
+      JOIN foods f ON bf.food_id = f.id
+      WHERE unaccent(f.name) ILIKE unaccent(${`%${keyword}%`})
+    `;
     const totalItem = Number(totalItemResult[0]?.count || 0);
-    const totalPage = Math.ceil(totalItem / pageSize);
+    const totalPage = Math.ceil(totalItem / _pageSize);
 
     const result = await this.prisma.$queryRaw`
-    SELECT * 
-    FROM foods 
-    WHERE unaccent(name) ILIKE unaccent(${`%${keyword}%`}) 
-    ORDER BY id ASC 
-    LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize};
-  `;
-
-    console.log({ result });
+      SELECT 
+        bf.id AS branch_food_id,
+        f.id AS food_id,
+        f.name AS food_name,
+        f.image AS food_image,
+        ft.name AS food_type_name,
+        b.id AS branch_id,
+        b.address AS branch_address,
+        br.name AS brand_name
+      FROM branch_foods bf
+      JOIN foods f ON bf.food_id = f.id
+      LEFT JOIN food_types ft ON f.type_id = ft.id
+      JOIN branches b ON bf.branch_id = b.id
+      JOIN brands br ON b.brand_id = br.id
+      WHERE unaccent(f.name) ILIKE unaccent(${`%${keyword}%`})
+      ORDER BY bf.id ASC
+      LIMIT ${_pageSize} OFFSET ${skip}
+    `;
 
     return {
-      page: page,
-      pageSize: pageSize,
-      totalItem: totalItem,
-      totalPage: totalPage,
+      page: _page,
+      pageSize: _pageSize,
+      totalItem,
+      totalPage,
       items: result || [],
     };
   }
 
-  async getFoodDetail(id: number) {
-    if (id === 0 || !id) throw new BadRequestException('Wrong id!!!');
-    const food_types = await this.prisma.foods.findFirst({
-      where: { id: id },
+  async getFoodDetail(branchFoodId: number) {
+    if (!branchFoodId) throw new BadRequestException('Invalid branch food ID');
+
+    const branchFood = await this.prisma.branch_foods.findFirst({
+      where: { id: branchFoodId },
       select: {
         id: true,
-        name: true,
-        description: true,
-        image: true,
-        type_id: true,
-        food_types: { select: { name: true } },
-        branch_foods: {
+        foods: {
           select: {
-            branches: {
-              select: { address: true, brands: { select: { name: true } } },
-            },
+            id: true,
+            name: true,
+            description: true,
+            image: true,
+            food_types: { select: { name: true } },
           },
+        },
+        branches: {
+          select: { address: true, brands: { select: { name: true } } },
         },
       },
     });
-    return food_types;
+
+    if (!branchFood) throw new BadRequestException('Branch food not found');
+    return branchFood;
   }
 }
