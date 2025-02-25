@@ -9,19 +9,11 @@ import ResultFood from "./result";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 
-interface Item {
-  id: number;
-  name: string;
-  address: string;
-  image: string;
-  kind: string;
-}
-
 const Page: React.FC = () => {
   const searchParams = useSearchParams();
   const keyword = searchParams?.get("keyword");
 
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchItemData = async () => {
@@ -30,18 +22,18 @@ const Page: React.FC = () => {
           `http://localhost:3030/food/search-food?keyword=${keyword}`
         );
         console.log({ keyword });
-        console.log({ response });
-        // setItems(
-        //   response.data.map((item: Item) => {
-        //     return {
-        //       id:item.id,
-        //       name: item.name,
-        //       img: item.image,
-        //       address: item.address,
-        //       kind:item.
-        //     };
-        // })
-        // );
+        console.log(response.data);
+        setItems(
+          response.data.items.map((item: any) => {
+            return {
+              id: item.food_id,
+              name: item.food_name,
+              img: item.food_image,
+              address: item.branch_address,
+              kind: item.food_type_name,
+            };
+          })
+        );
       } catch (error) {
         console.error("Error fetching food types:", error);
       }
