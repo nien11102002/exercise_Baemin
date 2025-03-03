@@ -1,4 +1,6 @@
 "use client";
+import FoodQuantityModal from "@/components/addFoodModal";
+import QuantityModal from "@/components/addFoodModal";
 import HeaderNav from "@/components/headerNav";
 import ScrollBar from "@/components/scrollBar";
 import ScrollFood from "@/components/scrollFood";
@@ -15,10 +17,34 @@ import {
   StarOutlined,
 } from "@ant-design/icons";
 import { Input } from "antd";
+import axios from "axios";
 import Image from "next/image";
-import React, { useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
-export default function Home() {
+export default function Home({ params }: { params: { id?: string } }) {
+  const branchId = params.id;
+
+  const [branchFoods, setBranchFoods] = useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [foodAdded, setFoodAdded] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchBranchFoods = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:3030/food/get-branch-food/${branchId}`
+        );
+        console.log(response.data);
+
+        setBranchFoods(response.data);
+      } catch (error) {
+        console.error("Error fetching food types:", error);
+      }
+    };
+    fetchBranchFoods();
+  }, []);
+
   const [isActive, setIsActive] = useState(false);
 
   const handleMouseDown = () => {
@@ -27,6 +53,11 @@ export default function Home() {
 
   const handleMouseUp = () => {
     setIsActive(false);
+  };
+
+  const handleAddCart = (food: any) => {
+    setFoodAdded(food);
+    setIsModalOpen(true);
   };
 
   return (
@@ -159,66 +190,41 @@ export default function Home() {
                 <Input addonBefore={<SearchOutlined />} placeholder="" />
               </div>
               <div className="flex flex-col w-full pl-1 gap-3">
-                <div className="font-medium">MÓN ĐANG GIẢM</div>
+                <div className="font-medium">MÓN ĂN</div>
                 <div className="flex flex-col w-full gap-43 border-b">
-                  <div className="flex flex-row ">
-                    <div className="w-[15%] relative h-16">
-                      <Image
-                        layout="fill"
-                        objectFit="cover"
-                        src={"/images/Ga.png"}
-                        alt="s"
-                      ></Image>
-                    </div>
-                    <div className="w-[60%] flex flex-col gap-1 px-2">
-                      <span className="font-bold text-[#464646] ">
-                        Mua 2 Tặng 2 Gà Rán{" "}
-                      </span>
-                      <span className="text-wrap text-sm text-[#464646] ">
-                        Bao gồm: 4 Miếng Gà (Cay/Không Cay), 2 Nước Vừa. Đã bao
-                        gồm 2x Tương Cà, 1x Tương Ớt Ngọt, 1x Tương Ớt Tỏi
-                      </span>
-                    </div>
-                    <div className="w-[15%] flex justify-center items-center">
-                      <span className="text-[#0288d1] font-bold text-base">
-                        118.000đ
-                      </span>
-                    </div>
-                    <div className="w-[10%] flex justify-center items-center">
-                      <div className="h-6 w-6 rounded-md flex justify-center items-center bg-beamin text-white font-bold cursor-pointer hover:brightness-110 ">
-                        <PlusOutlined />
+                  {branchFoods.map((food) => (
+                    <div key={food.id} className="flex flex-row my-2">
+                      <div className="w-[15%] relative h-16">
+                        <Image
+                          layout="fill"
+                          objectFit="cover"
+                          src={`http://localhost:3030/images/${food.foods.image}`}
+                          alt={food.foods.name}
+                        />
+                      </div>
+                      <div className="w-[60%] flex flex-col gap-1 px-2">
+                        <span className="font-bold text-[#464646]">
+                          {food.foods.name}
+                        </span>
+                        <span className="text-wrap text-sm text-[#464646]">
+                          {food.foods.description}
+                        </span>
+                      </div>
+                      <div className="w-[15%] flex justify-center items-center">
+                        <span className="text-[#0288d1] font-bold text-base">
+                          {food.price / 1000}.000đ
+                        </span>
+                      </div>
+                      <div className="w-[10%] flex justify-center items-center">
+                        <div
+                          className="h-6 w-6 rounded-md flex justify-center items-center bg-beamin text-white font-bold cursor-pointer hover:brightness-110"
+                          onClick={() => handleAddCart(food)}
+                        >
+                          <PlusOutlined />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex flex-row ">
-                    <div className="w-[15%] relative h-16">
-                      <Image
-                        layout="fill"
-                        objectFit="cover"
-                        src={"/images/Ga.png"}
-                        alt="s"
-                      ></Image>
-                    </div>
-                    <div className="w-[60%] flex flex-col gap-1 px-2">
-                      <span className="font-bold text-[#464646] ">
-                        Mua 2 Tặng 2 Gà Rán{" "}
-                      </span>
-                      <span className="text-wrap text-sm text-[#464646] ">
-                        Bao gồm: 4 Miếng Gà (Cay/Không Cay), 2 Nước Vừa. Đã bao
-                        gồm 2x Tương Cà, 1x Tương Ớt Ngọt, 1x Tương Ớt Tỏi
-                      </span>
-                    </div>
-                    <div className="w-[15%] flex justify-center items-center">
-                      <span className="text-[#0288d1] font-bold text-base">
-                        118.000đ
-                      </span>
-                    </div>
-                    <div className="w-[10%] flex justify-center items-center">
-                      <div className="h-6 w-6 rounded-md flex justify-center items-center bg-beamin text-white font-bold cursor-pointer hover:brightness-110 ">
-                        <PlusOutlined />
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -226,6 +232,13 @@ export default function Home() {
           </div>
         </div>
       </div>
+      {foodAdded && (
+        <FoodQuantityModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          food={foodAdded}
+        />
+      )}
     </>
   );
 }

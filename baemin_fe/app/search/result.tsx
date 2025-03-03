@@ -3,9 +3,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function ResultFood({ items }: { items: any[] }) {
+  console.log({ items });
   const router = useRouter();
-  const handleNavigate = (id: number) => {
-    router.push(`/detailfood/${encodeURIComponent(id)}`);
+  const handleNavigate = (branch_id: number) => {
+    router.push(`/detailfood/${encodeURIComponent(branch_id)}`);
   };
   return (
     <>
@@ -13,7 +14,7 @@ export default function ResultFood({ items }: { items: any[] }) {
         {items.map((item: any) => (
           <div
             onClick={() => {
-              handleNavigate(item.id);
+              handleNavigate(item.branch_id);
             }}
             key={item.id}
             className="group w-[19%] h-56 bg-white flex flex-col cursor-pointer"

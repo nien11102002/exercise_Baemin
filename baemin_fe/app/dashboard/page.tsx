@@ -63,15 +63,18 @@ export default function Home() {
           "http://localhost:3030/food/get-foods-pagination?page=1&pageSize=5"
         );
 
+        //console.log(response.data.items);
+
         setTodayFoods({
           title: "Hôm Nay ăn gì",
           items: response.data.items.map((item: any) => {
             return {
-              id: item.id,
-              name: item.name,
-              address: item.branch_foods[0].branches.address,
-              image: item.image,
-              kind: item.food_types.name,
+              id: item.food_id,
+              name: item.foods.name,
+              address: item.branches.address,
+              image: item.foods.image,
+              kind: item.foods.food_types.name,
+              branch_id: item.branch_id,
             };
           }),
         });

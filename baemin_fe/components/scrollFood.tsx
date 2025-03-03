@@ -5,12 +5,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 export default function ScrollBar({ items }: { items: any }) {
+  // console.log({ items });
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const handleNavigate = () => {
-    router.push("/detailfood");
+  const handleNavigate = (branch_id: number) => {
+    router.push(`/detailfood/${encodeURIComponent(branch_id)}`);
   };
 
   const handleNext = () => {
@@ -50,7 +51,7 @@ export default function ScrollBar({ items }: { items: any }) {
             {items.items.map((item: any, index: any) => (
               <div
                 key={index}
-                onClick={handleNavigate}
+                onClick={() => handleNavigate(item.branch_id)}
                 className="group w-48 h-full cursor-pointer flex-shrink-0"
               >
                 <div className="relative w-full h-2/3">

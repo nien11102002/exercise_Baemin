@@ -21,16 +21,17 @@ const Page: React.FC = () => {
         const response = await axios.get(
           `http://localhost:3030/food/search-food?keyword=${keyword}`
         );
-        console.log({ keyword });
-        console.log(response.data);
+        // console.log({ keyword });
+        // console.log(response.data);
         setItems(
           response.data.items.map((item: any) => {
             return {
-              id: item.food_id,
+              id: item.branch_food_id,
               name: item.food_name,
               img: item.food_image,
               address: item.branch_address,
               kind: item.food_type_name,
+              branch_id: item.branch_id,
             };
           })
         );
