@@ -10,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { FoodService } from './food.service';
 import { ApiQuery } from '@nestjs/swagger';
+import { Public } from 'src/common/decorators/public.decorator';
 
+@Public()
 @Controller('food')
 export class FoodController {
   constructor(private readonly foodService: FoodService) {}
@@ -67,8 +69,8 @@ export class FoodController {
     return this.foodService.searchFood(+page, +pageSize, keyword);
   }
 
-  @Get(`get-food-detail:id`)
-  getFoodDetail(@Param(`id`) id: string) {
-    return this.foodService.getFoodDetail(+id);
+  @Get(`get-branch-food/:branch_id`)
+  getBranchFood(@Param(`branch_id`) branch_id: string) {
+    return this.foodService.getBranchFood(+branch_id);
   }
 }

@@ -10,10 +10,11 @@ export class FoodService {
   }
 
   async getFoodsPagination(page: number, pageSize: number) {
-    const _page = Math.max(page, 1);
-    const _pageSize = Math.max(pageSize, 10);
+    const _page = Number.isInteger(page) && page > 0 ? page : 1;
+    const _pageSize =
+      Number.isInteger(pageSize) && pageSize > 0 ? pageSize : 10;
     const skip = (_page - 1) * _pageSize;
-
+    console.log({ _page, _pageSize });
     const totalItem = await this.prisma.branch_foods.count();
     const totalPage = Math.ceil(totalItem / _pageSize);
 
@@ -54,8 +55,9 @@ export class FoodService {
   }
 
   async searchFood(page: number, pageSize: number, keyword: string) {
-    const _page = Math.max(page, 1);
-    const _pageSize = Math.max(pageSize, 10);
+    const _page = Number.isInteger(page) && page > 0 ? page : 1;
+    const _pageSize =
+      Number.isInteger(pageSize) && pageSize > 0 ? pageSize : 10;
     const skip = (_page - 1) * _pageSize;
 
     const totalItemResult = await this.prisma.$queryRaw`
@@ -96,29 +98,21 @@ export class FoodService {
     };
   }
 
-  async getFoodDetail(branchFoodId: number) {
-    if (!branchFoodId) throw new BadRequestException('Invalid branch food ID');
+  async getBranchFood(branch_id: number) {
+    if (!branch_id) throw new BadRequestException('Invalid branch ID');
 
-    const branchFood = await this.prisma.branch_foods.findFirst({
-      where: { id: branchFoodId },
-      select: {
-        id: true,
-        foods: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            image: true,
-            food_types: { select: { name: true } },
-          },
-        },
-        branches: {
-          select: { address: true, brands: { select: { name: true } } },
-        },
-      },
+    const branchFoods = await this.prisma.branch_foods.findMany({
+      where: { branch_id: branch_id },
+      include: { foods: true },
     });
+    // await this.prisma.branches.findFirst({
+    //   where: { id: branch_id },
+    //   select: {
+    //
+    //   },
+    // });
 
-    if (!branchFood) throw new BadRequestException('Branch food not found');
-    return branchFood;
+    if (!branchFoods) throw new BadRequestException('Branch food not found');
+    return branchFoods;
   }
 }
