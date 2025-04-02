@@ -1,7 +1,5 @@
 DROP DATABASE IF EXISTS db_baemin;
 
-CREATE EXTENSION IF NOT EXISTS unaccent;
-
 DROP TABLE IF EXISTS branch_foods CASCADE;
 DROP TABLE IF EXISTS branches CASCADE;
 DROP TABLE IF EXISTS brands CASCADE;
@@ -16,7 +14,7 @@ DROP TABLE IF EXISTS users CASCADE;
 
 CREATE DATABASE db_baemin;
 
-\c db_baemin
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 CREATE TABLE food_types (	
     id SERIAL PRIMARY KEY,
@@ -24,7 +22,7 @@ CREATE TABLE food_types (
     image TEXT,
     description TEXT,
 
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
@@ -35,7 +33,7 @@ CREATE TABLE foods (
     image TEXT,
     type_id INTEGER NOT NULL REFERENCES food_types(id) ON DELETE CASCADE,
 
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -44,7 +42,7 @@ CREATE TABLE banners (
     name VARCHAR(255) NOT NULL,
     url TEXT NOT NULL,
 
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
@@ -57,7 +55,7 @@ CREATE TABLE users (
     first_name VARCHAR(100),
     last_name VARCHAR(100),
 
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
@@ -65,7 +63,7 @@ CREATE TABLE brands (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
@@ -82,7 +80,7 @@ CREATE TABLE branches (
     max_price NUMERIC(10, 2),
     brand_id INTEGER NOT NULL REFERENCES brands(id) ON DELETE CASCADE,
     
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -93,7 +91,7 @@ CREATE TABLE branch_foods (
     price NUMERIC(10, 2) NOT NULL,
     stock INTEGER NOT NULL DEFAULT 0,
      
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -121,11 +119,11 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
     id SERIAL PRIMARY KEY,
     order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-    food_id INTEGER NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
+    branch_food_id INTEGER NOT NULL REFERENCES branch_foods(id) ON DELETE CASCADE,
     quantity INTEGER NOT NULL DEFAULT 1,
     price NUMERIC(10, 2) NOT NULL,
     
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -137,39 +135,49 @@ CREATE TABLE payments (
     amount NUMERIC(10, 2) NOT NULL,
     status VARCHAR(50) DEFAULT 'Pending',
     
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE shippings (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    address TEXT NOT NULL,
+    shipping_fee NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    status VARCHAR(50) DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Insert into food_types
 INSERT INTO food_types (name, image, description) VALUES
-('Bánh mì', 'banhmi.jpg', 'Bánh mì truyền thống của Việt Nam'),
-('Phở', 'pho.jpg', 'Món phở bò hoặc gà đặc trưng'),
-('Bún chả', 'buncha.jpg', 'Món bún chả nổi tiếng Hà Nội'),
-('Cơm tấm', 'comtam.jpg', 'Cơm tấm sườn bì chả'),
-('Chè', 'che.jpg', 'Các loại chè tráng miệng ngọt ngào');
+('Bánh mì', 'banhmi.png', 'Bánh mì truyền thống của Việt Nam'),
+('Phở', 'pho.png', 'Món phở bò hoặc gà đặc trưng'),
+('Bún chả', 'buncha.png', 'Món bún chả nổi tiếng Hà Nội'),
+('Cơm tấm', 'comtam.png', 'Cơm tấm sườn bì chả'),
+('Chè', 'che.png', 'Các loại chè tráng miệng ngọt ngào');
 
 INSERT INTO foods (name, description, image, type_id) VALUES
-('Bánh mì thịt nguội', 'Bánh mì với thịt nguội và rau', 'banhmi_thitnguoi.jpg', 1),
-('Phở bò', 'Phở với thịt bò tái, chín', 'pho_bo.jpg', 2),
-('Bún chả Hà Nội', 'Bún chả với thịt nướng và nước mắm', 'buncha_hanoi.jpg', 3),
-('Cơm tấm sườn', 'Cơm tấm với sườn nướng', 'comtam_suon.jpg', 4),
-('Chè ba màu', 'Chè đậu đỏ, xanh và vàng', 'che_ba_mau.jpg', 5),
+('Bánh mì thịt nguội', 'Bánh mì với thịt nguội và rau', 'banhmi.jpg', 1),
+('Phở bò', 'Phở với thịt bò tái, chín', 'pho.jpg', 2),
+('Bún chả Hà Nội', 'Bún chả với thịt nướng và nước mắm', 'buncha.jpg', 3),
+('Cơm tấm sườn', 'Cơm tấm với sườn nướng', 'comtam.jpg', 4),
+('Chè ba màu', 'Chè đậu đỏ, xanh và vàng', 'che.jpg', 5),
 ('Bánh xèo', 'Bánh xèo giòn rụm với tôm và thịt', 'banhxeo.jpg', 1),
 ('Bánh cuốn', 'Bánh cuốn nhân thịt hấp dẫn', 'banhcuon.jpg', 1),
-('Phở tái lăn', 'Phở với thịt bò tái lăn', 'pho_tai_lan.jpg', 2),
-('Bún bò Huế', 'Bún bò Huế cay nồng đậm đà', 'bunbo_hue.jpg', 3),
-('Cơm gà Hội An', 'Cơm gà đặc sản Hội An', 'comga_hoian.jpg', 4);
+('Phở tái lăn', 'Phở với thịt bò tái lăn', 'pho.jpg', 2),
+('Bún bò Huế', 'Bún bò Huế cay nồng đậm đà', 'bunbo.jpg', 3),
+('Cơm gà Hội An', 'Cơm gà đặc sản Hội An', 'comtam.jpg', 4);
 
 
 -- Insert into banners
 INSERT INTO banners (name, url) VALUES
-('Khuyến mãi Tết', 'khuyen_mai_tet.jpg'),
-('Giảm 50% Bánh mì', 'giam_banh_mi.jpg'),
-('Ưu đãi Phở đặc biệt', 'uu_dai_pho.jpg'),
-('Bún chả ngon tuyệt', 'bun_cha_ngon.jpg'),
-('Tráng miệng miễn phí', 'trang_mieng_free.jpg');
+('Khuyến mãi Tết', 'banner1.jpg'),
+('Giảm 50% Bánh mì', 'banner2.jpg'),
+('Ưu đãi Phở đặc biệt', 'banner3.jpg'),
+('Bún chả ngon tuyệt', 'banner4.jpg'),
+('Tráng miệng miễn phí', 'banner5.jpg');
 
 -- Insert into users
 INSERT INTO users (email, phone_number, account, password, first_name, last_name) VALUES
@@ -196,51 +204,36 @@ INSERT INTO branches (address, open_time, close_time, is_open, service_fee, rati
 ('202 Đường Lý Tự Trọng, Quận 5', '10:00:00', '19:00:00', TRUE, 3.50, 4.7, 130, 15.000, 40.000, 5);
 
 INSERT INTO branch_foods (branch_id, food_id, price, stock) VALUES
-(1, 1, 25.000, 50),
-(1, 2, 30.000, 40),
-(1, 3, 35.000, 30),
-(1, 4, 40.000, 20),
-(1, 5, 22.000, 10),
-(2, 1, 26.000, 45),
-(2, 6, 28.000, 35),
-(2, 7, 33.000, 25),
-(2, 8, 37.000, 18),
-(2, 9, 24.000, 12),
-(3, 2, 31.000, 48),
-(3, 3, 36.000, 38),
-(3, 4, 42.000, 28),
-(3, 5, 23.000, 15),
-(3, 10, 45.000, 5),
-(4, 6, 27.000, 50),
-(4, 7, 32.000, 40),
-(4, 8, 38.000, 30),
-(4, 9, 25.000, 20),
-(4, 10, 46.000, 10);
+(1, 1, 25000, 50),
+(1, 2, 30000, 40),
+(1, 3, 35000, 30),
+(1, 4, 40000, 20),
+(1, 5, 22000, 10),
+(2, 1, 26000, 45),
+(2, 6, 28000, 35),
+(2, 7, 33000, 25),
+(2, 8, 37000, 18),
+(2, 9, 24000, 12),
+(3, 2, 31000, 48),
+(3, 3, 36000, 38),
+(3, 4, 42000, 28),
+(3, 5, 23000, 15),
+(3, 10, 45000, 5),
+(4, 6, 27000, 50),
+(4, 7, 32000, 40),
+(4, 8, 38000, 30),
+(4, 9, 25000, 20),
+(4, 10, 46000, 10);
 
-INSERT INTO cart_items (user_id, branch_food_id, quantity) VALUES
-(1, 1, 2),
-(1, 2, 1),
-(2, 3, 1),
-(3, 4, 3),
-(4, 5, 1);
+-- INSERT INTO cart_items (user_id, branch_food_id, quantity) VALUES
+-- (1, 1, 2),
+-- (1, 2, 1),
+-- (2, 3, 1),
+-- (3, 4, 3),
+-- (4, 5, 1);
 
-INSERT INTO orders (user_id, status, total_price) VALUES
-(1, 'Pending', 90.000),
-(2, 'Completed', 35.000),
-(3, 'Cancelled', 50.000),
-(4, 'Processing', 22.000),
-(5, 'Pending', 60.000);
+-- #INSERT INTO orders (user_id, status, total_price) VALUES
 
-INSERT INTO order_items (order_id, food_id, quantity, price) VALUES
-(1, 1, 2, 50.000), 
-(1, 2, 1, 40.000), 
-(2, 3, 1, 35.000), 
-(4, 5, 1, 22.000), 
-(5, 4, 1, 60.000); 
+-- #INSERT INTO order_items (order_id, branch_food_id, quantity, price) VALUES
 
-INSERT INTO payments (order_id, user_id, amount, status) VALUES
-(1, 1, 90.000, 'Pending'),
-(2, 2, 35.000, 'Completed'),
-(3, 3, 50.000, 'Cancelled'),
-(4, 4, 22.000, 'Processing'),
-(5, 5, 60.000, 'Pending');
+-- #INSERT INTO payments (order_id, user_id, amount, status) VALUES

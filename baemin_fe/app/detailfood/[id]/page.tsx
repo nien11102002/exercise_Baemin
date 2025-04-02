@@ -212,7 +212,7 @@ export default function Home({ params }: { params: { id?: string } }) {
                       </div>
                       <div className="w-[15%] flex justify-center items-center">
                         <span className="text-[#0288d1] font-bold text-base">
-                          {food.price / 1000}.000đ
+                          {food.price}đ
                         </span>
                       </div>
                       <div className="w-[10%] flex justify-center items-center">

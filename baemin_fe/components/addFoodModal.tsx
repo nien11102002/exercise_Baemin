@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useState } from "react";
-import { Modal, Button } from "antd";
+import { Modal, Button, message } from "antd";
 import Image from "next/image";
 import axios from "axios";
 
@@ -41,7 +41,13 @@ const FoodQuantityModal: FC<FoodQuantityModalProps> = ({
         }
       );
 
-      console.log("Cart updated successfully:", response);
+      if (response.status === 200 || response.status === 201) {
+        message.success("Successfully add to cart!");
+        setQuantity(1);
+        onClose();
+      } else {
+        message.error("Failed to add to cart.");
+      }
     } catch (error) {
       console.error("Error fetching food types:", error);
     }
@@ -70,7 +76,7 @@ const FoodQuantityModal: FC<FoodQuantityModalProps> = ({
         </div>
         <div className="w-[15%] flex justify-center items-center">
           <span className="text-[#0288d1] font-bold text-base">
-            {(food.price * quantity) / 1000}.000đ
+            {food.price * quantity}đ
           </span>
         </div>
       </div>
