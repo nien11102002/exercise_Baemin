@@ -9,19 +9,62 @@ import Image from "next/image";
 import DetailsCheckout from "./detailsCheckout";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function Home() {
-  const storeData = useCartStore((state) => state.storeData);
-  const selectedStoreId = useCartStore((state) => state.selectedStoreId);
+  const accessToken = localStorage.getItem("accessToken");
+  const [storeData, setStoreData] = useState<any>(null);
+  const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
+
   useEffect(() => {
-    console.log("Zustand State Updated:", { storeData, selectedStoreId });
-  }, [storeData, selectedStoreId]);
+    const data = useCartStore.getState().storeData;
+    const storeId = useCartStore.getState().selectedStoreId;
+
+    setStoreData(data);
+    setSelectedStoreId(storeId);
+  }, []);
+  console.log("Zustand State Updated:", { storeData, selectedStoreId });
+  if (!storeData) {
+    return (
+      <div className="text-center text-lg font-semibold py-10">Loading...</div>
+    );
+  }
 
   var items = storeData.items;
 
+  const address = "123 Lê Lợi, Quận 1, TP.Hồ Chí Minh";
+  const shippingFee = 30000;
+  const totalPrice = items.reduce(
+    (acc: number, item: any) => acc + item.totalPrice,
+    0
+  );
+
   const router = useRouter();
-  const handleOrder = () => {
+  const handleOrder = async () => {
+    const orderItems = items.map((item: any) => ({
+      branch_food_id: item.branchFoodId,
+      quantity: item.quantity,
+      price: item.totalPrice,
+    }));
+
+    const response = await axios.post(
+      ` http://localhost:3030/order`,
+      {
+        orderItems,
+        total_price: totalPrice,
+        branch_id: selectedStoreId,
+        address,
+        shipping_fee: shippingFee,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
     router.push("/statusorder");
   };
   return (
@@ -61,7 +104,7 @@ export default function Home() {
           </div>
           <div className="pl-3 flex flex-row gap-5 items-center mb-3 mt-3">
             <span className="font-bold">Trần minh Thiện (+84) 344034531 </span>
-            <span>Địa chỉ: 123 Lê Lợi, Quận 1, TP.Hồ Chí Minh</span>
+            <span>Địa chỉ: {address}</span>
             <div className="border border-solid border-beamin p-1 text-xs text-beamin">
               {" "}
               Mặc định{" "}
@@ -120,8 +163,8 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t w-full  h-16 flex justify-end pr-5 gap-2 items-center">
-            <span>Tổng số tiền (1 sản phẩm):</span>
-            <span className="text-beamin font-bold">₫176.000</span>
+            <span>Tổng số tiền:</span>
+            <span className="text-beamin font-bold">₫{totalPrice}</span>
           </div>
         </div>
         <div className="w-full  flex flex-col bg-white rounded-md  pt-5 gap-3">
@@ -143,21 +186,23 @@ export default function Home() {
           <div className="w-full   border-t flex flex-col justify-end items-end pt-4  gap-4">
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">Tổng tiền hàng</div>
-              <div className="text-sm mr-5">₫259.000</div>
+              <div className="text-sm mr-5">₫{totalPrice}</div>
             </div>
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">Phí vận chuyển</div>
-              <div className="text-sm mr-5">₫38.000</div>
+              <div className="text-sm mr-5">₫30.000</div>
             </div>
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">
                 Tổng cộng Voucher giảm giá:
               </div>
-              <div className="text-sm mr-5">-₫10.000</div>
+              <div className="text-sm mr-5">-₫0</div>
             </div>
             <div className="flex justify-between w-[30%] ">
               <div className="text-sm text-gray-900">Tổng thanh toán</div>
-              <div className="text-2xl mr-5 text-beamin">₫287.000</div>
+              <div className="text-2xl mr-5 text-beamin">
+                ₫{totalPrice + shippingFee}
+              </div>
             </div>
           </div>
           <div className="w-full border-t  flex flex-row justify-between items-center  pt-4  gap-4 mb-4">

@@ -18,8 +18,6 @@ export default function DetailsCart({
   ) => void;
   onRemoveCartItem: (branchFoodId: number) => void;
 }) {
-  const [storeTotalPrice, setStoreTotalPrice] = useState(0);
-
   return (
     <>
       {Details.map((store, index) => (

@@ -95,11 +95,7 @@ export default function Home() {
       console.log({ storeData });
 
       if (storeData) {
-        console.log("Before setting Zustand store:", useCartStore.getState());
-
         useCartStore.getState().setSelectedStore(selectedStore, storeData);
-
-        console.log("After setting Zustand store:", useCartStore.getState());
       }
     }
   };
