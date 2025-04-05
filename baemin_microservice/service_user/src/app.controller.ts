@@ -7,13 +7,10 @@ import {
 import { AppService } from './app.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PrismaService } from './prisma/prisma.service';
-import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { TUserAccount } from 'types/type';
-import { RegisterDto } from './dto/register.dto';
-import { Public } from 'decorators/public.decorator';
 
 @Controller()
 export class AppController {
@@ -24,7 +21,6 @@ export class AppController {
     private configService: ConfigService,
   ) {}
 
-  @Public()
   @MessagePattern('login')
   async login(@Payload() data) {
     const { identifier, password } = data;
@@ -75,7 +71,6 @@ export class AppController {
     return { accessToken, refreshToken };
   }
 
-  @Public()
   @MessagePattern('register')
   async register(@Payload() data) {
     const {
