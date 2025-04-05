@@ -7,6 +7,7 @@ import { UserModule } from './modules/user/user.module';
 import { OrderModule } from './modules/order/order.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
 import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './modules/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { ConfigModule } from '@nestjs/config';
     OrderModule,
     ShippingModule,
     ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
   ],
   controllers: [AppController],
   providers: [AppService],
