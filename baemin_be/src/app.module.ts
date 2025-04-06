@@ -8,7 +8,6 @@ import { OrderModule } from './modules/order/order.module';
 import { CartModule } from './modules/cart/cart.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { CheckoutModule } from './modules/checkout/checkout.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { CheckoutModule } from './modules/checkout/checkout.module';
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/images',
     }),
-    CheckoutModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,6 +8,8 @@ import { OrderModule } from './modules/order/order.module';
 import { ShippingModule } from './modules/shipping/shipping.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './modules/prisma/prisma.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -56,6 +58,17 @@ import { PrismaModule } from './modules/prisma/prisma.module';
           },
         },
       },
+      {
+        name: 'CART_NAME',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://admin:1234@localhost:5672'],
+          queue: 'cart_queue',
+          queueOptions: {
+            durable: false,
+          },
+        },
+      },
     ]),
     ProductModule,
     UserModule,
@@ -63,6 +76,10 @@ import { PrismaModule } from './modules/prisma/prisma.module';
     ShippingModule,
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      serveRoot: '/images',
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

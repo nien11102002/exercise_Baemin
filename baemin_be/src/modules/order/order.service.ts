@@ -9,9 +9,9 @@ export class OrderService {
   constructor(private prisma: PrismaService) {}
 
   async create(createOrderDto: CreateOrderDto, user: TUser) {
-    console.log({ createOrderDto });
     const { orderItems, total_price, branch_id, address, shipping_fee } =
       createOrderDto;
+
     return this.prisma.$transaction(async (prisma) => {
       const newOrder = await prisma.orders.create({
         data: {
@@ -67,21 +67,5 @@ export class OrderService {
     });
 
     await Promise.all(updatePromises);
-  }
-
-  findAll() {
-    return `This action returns all order`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} order`;
-  }
-
-  update(id: number, updateOrderDto: UpdateOrderDto) {
-    return `This action updates a #${id} order`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} order`;
   }
 }
