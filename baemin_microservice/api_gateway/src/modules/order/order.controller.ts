@@ -5,7 +5,9 @@ import { User } from 'src/common/decorators/user.decorator';
 import { TUser } from 'src/common/types/types';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('order')
 export class OrderController {
   constructor(@Inject('ORDER_NAME') private orderService: ClientProxy) {}
