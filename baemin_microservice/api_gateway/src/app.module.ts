@@ -5,11 +5,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ProductModule } from './modules/product/product.module';
 import { UserModule } from './modules/user/user.module';
 import { OrderModule } from './modules/order/order.module';
-import { ShippingModule } from './modules/shipping/shipping.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CartModule } from './modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -73,13 +73,13 @@ import { join } from 'path';
     ProductModule,
     UserModule,
     OrderModule,
-    ShippingModule,
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/images',
     }),
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],
