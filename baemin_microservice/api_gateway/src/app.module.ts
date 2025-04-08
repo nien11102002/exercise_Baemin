@@ -10,6 +10,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CartModule } from './modules/cart/cart.module';
+import { JwtStrategy } from './modules/user/jwt.strategy';
 
 @Module({
   imports: [

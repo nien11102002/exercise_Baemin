@@ -13,8 +13,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalGuards(new JwtAuthGuard(reflector));
-  app.useGlobalInterceptors(new ResponseSuccessInterceptor(reflector));
-  app.useGlobalFilters(new AllExceptionFilter());
+
   app.enableCors();
 
   const config = new DocumentBuilder()

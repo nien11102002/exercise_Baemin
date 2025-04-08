@@ -22,6 +22,7 @@ export class CartController {
 
   @Post('add-item')
   async addItem(@Body() addFood: AddFoodDto, @User() user: TUser) {
+    console.log(addFood);
     let newCartItems = await lastValueFrom(
       this.cartService.send('add-item', { addFood, user }),
     );
