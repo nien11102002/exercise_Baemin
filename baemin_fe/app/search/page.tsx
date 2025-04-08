@@ -40,7 +40,7 @@ const Page: React.FC = () => {
       }
     };
     fetchItemData();
-  }, []);
+  }, [keyword]);
 
   return (
     <>

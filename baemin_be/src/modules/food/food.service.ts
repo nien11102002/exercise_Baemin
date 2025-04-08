@@ -105,12 +105,6 @@ export class FoodService {
       where: { branch_id: branch_id },
       include: { foods: true },
     });
-    // await this.prisma.branches.findFirst({
-    //   where: { id: branch_id },
-    //   select: {
-    //
-    //   },
-    // });
 
     if (!branchFoods) throw new BadRequestException('Branch food not found');
     return branchFoods;

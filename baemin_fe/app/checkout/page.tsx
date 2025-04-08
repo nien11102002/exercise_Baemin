@@ -16,6 +16,7 @@ export default function Home() {
   const accessToken = localStorage.getItem("accessToken");
   const [storeData, setStoreData] = useState<any>(null);
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
+  const [isOrdering, setIsOrdering] = useState(false);
 
   useEffect(() => {
     const data = useCartStore.getState().storeData;
@@ -42,30 +43,38 @@ export default function Home() {
 
   const router = useRouter();
   const handleOrder = async () => {
-    const orderItems = items.map((item: any) => ({
-      branch_food_id: item.branchFoodId,
-      quantity: item.quantity,
-      price: item.totalPrice,
-    }));
+    if (isOrdering) return;
+    setIsOrdering(true);
 
-    const response = await axios.post(
-      ` http://localhost:3030/order`,
-      {
-        orderItems,
-        total_price: totalPrice,
-        branch_id: selectedStoreId,
-        address,
-        shipping_fee: shippingFee,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
+    try {
+      const orderItems = items.map((item: any) => ({
+        branch_food_id: item.branchFoodId,
+        quantity: item.quantity,
+        price: item.totalPrice,
+      }));
+
+      const response = await axios.post(
+        ` http://localhost:3030/order`,
+        {
+          orderItems,
+          total_price: totalPrice,
+          branch_id: selectedStoreId,
+          address,
+          shipping_fee: shippingFee,
         },
-      }
-    );
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    router.push("/statusorder");
+      router.push("/statusorder");
+    } catch (e) {
+    } finally {
+      setIsOrdering(false);
+    }
   };
   return (
     <>
@@ -215,9 +224,10 @@ export default function Home() {
             <div className="w-[30%] pl-48 ">
               <button
                 onClick={handleOrder}
+                disabled={isOrdering}
                 className="p-1 bg-beamin text-white w-36 rounded-md h-10 hover:brightness-105"
               >
-                Đặt hàng
+                {isOrdering ? "Đang xử lý..." : "Đặt hàng"}
               </button>
             </div>
           </div>

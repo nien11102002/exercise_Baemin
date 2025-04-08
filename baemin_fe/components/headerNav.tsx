@@ -18,7 +18,7 @@ export default function HeaderNav() {
   const onSearch: SearchProps["onSearch"] = (value, _e, info) => {
     const trimmedValue = value.trim();
     if (trimmedValue) {
-      router.push(`/search?keyword=${encodeURIComponent(trimmedValue)}`);
+      router.replace(`/search?keyword=${encodeURIComponent(trimmedValue)}`);
     }
   };
   const navigation = () => {
