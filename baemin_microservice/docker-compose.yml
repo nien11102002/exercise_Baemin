@@ -1,0 +1,44 @@
+version: "3"
+
+services:
+  api_gateway:
+    container_name: api_gateway
+    build: ./api_gateway
+    ports:
+      - 3030:3030
+    networks:
+      - node-network
+
+  service_cart:
+    container_name: service_cart
+    build: ./service_cart
+    networks:
+      - node-network
+
+  service_order:
+    container_name: service_order
+    build: ./service_order
+    networks:
+      - node-network
+
+  service_product:
+    container_name: service_product
+    build: ./service_product
+    networks:
+      - node-network
+
+  service_shipping:
+    container_name: service_shipping
+    build: ./service_shipping
+    networks:
+      - node-network
+
+  service_user:
+    container_name: service_user
+    build: ./service_user
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    external: true

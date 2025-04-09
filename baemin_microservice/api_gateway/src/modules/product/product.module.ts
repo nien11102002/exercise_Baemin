@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Module({
   imports: [
@@ -11,7 +11,7 @@ import { PrismaService } from '../prisma/prisma.service';
         name: 'PRODUCT_NAME',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://admin:1234@localhost:5672'],
+          urls: ['amqp://admin:1234@some-rabbit:5672'],
           queue: 'product_queue',
           queueOptions: {
             durable: false,

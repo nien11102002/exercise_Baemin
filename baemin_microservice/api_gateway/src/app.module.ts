@@ -6,7 +6,7 @@ import { ProductModule } from './modules/product/product.module';
 import { UserModule } from './modules/user/user.module';
 import { OrderModule } from './modules/order/order.module';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from './modules/prisma/prisma.module';
+import { PrismaModule } from './prisma/prisma.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CartModule } from './modules/cart/cart.module';
@@ -19,7 +19,7 @@ import { JwtStrategy } from './modules/user/jwt.strategy';
         name: 'PRODUCT_NAME',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://admin:1234@localhost:5672'],
+          urls: ['amqp://admin:1234@some-rabbit:5672'],
           queue: 'product_queue',
           queueOptions: {
             durable: false,
@@ -30,7 +30,7 @@ import { JwtStrategy } from './modules/user/jwt.strategy';
         name: 'USER_NAME',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://admin:1234@localhost:5672'],
+          urls: ['amqp://admin:1234@some-rabbit:5672'],
           queue: 'user_queue',
           queueOptions: {
             durable: false,
@@ -41,7 +41,7 @@ import { JwtStrategy } from './modules/user/jwt.strategy';
         name: 'SHIPPING_NAME',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://admin:1234@localhost:5672'],
+          urls: ['amqp://admin:1234@some-rabbit:5672'],
           queue: 'shipping_queue',
           queueOptions: {
             durable: false,
@@ -52,7 +52,7 @@ import { JwtStrategy } from './modules/user/jwt.strategy';
         name: 'ORDER_NAME',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://admin:1234@localhost:5672'],
+          urls: ['amqp://admin:1234@some-rabbit:5672'],
           queue: 'order_queue',
           queueOptions: {
             durable: false,
@@ -63,7 +63,7 @@ import { JwtStrategy } from './modules/user/jwt.strategy';
         name: 'CART_NAME',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://admin:1234@localhost:5672'],
+          urls: ['amqp://admin:1234@some-rabbit:5672'],
           queue: 'cart_queue',
           queueOptions: {
             durable: false,
