@@ -1,4 +1,4 @@
-# Run this first in Kibana
+# Run this first in Kibana (set up for logstash so that can search in unaccent mode)
 
 PUT /product-baemin-index
 {
@@ -35,7 +35,7 @@ PUT /product-baemin-index
 }
 }
 
-# CONFIG FILE LOGSTASH.CONF in CONTAINER LOGSTASH (remember to adjust the layout)
+# CONFIG FILE LOGSTASH.CONF in CONTAINER LOGSTASH (remember to adjust the layout and remove comment)
 
 input {
 jdbc {
@@ -60,7 +60,7 @@ LEFT JOIN food_types ft ON f.type_id = ft.id
 JOIN branches b ON bf.branch_id = b.id
 JOIN brands br ON b.brand_id = br.id
 "
-schedule => "\* \* \* \* \*" <!-- Remove \ -->
+schedule => "\* \* \* \* \*" <!-- Remove '\' -->
 }
 }
 
